@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo/providers/AuthProvider.dart';
+import 'package:todo/providers/BottomSheetProvider.dart';
 import 'package:todo/ui/splash/SplashScreen.dart';
 
 import 'firebase_options.dart';
@@ -14,8 +15,13 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(ChangeNotifierProvider(
-      create: (context) => Authprovider(), child: const MyApp()));
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => Authprovider()),
+      ChangeNotifierProvider(create: (context) => BottomSheetProvider())
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -29,7 +35,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFFDFECDB),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
             shape:
-            StadiumBorder(side: BorderSide(width: 4, color: Colors.white)),
+                StadiumBorder(side: BorderSide(width: 4, color: Colors.white)),
             backgroundColor: Color(0xFF5D9CEC)),
         bottomAppBarTheme: const BottomAppBarTheme(
           shape: CircularNotchedRectangle(),
@@ -50,7 +56,7 @@ class MyApp extends StatelessWidget {
         RegisterScreen.routeName: (_) => const RegisterScreen(),
         LoginScreen.routeName: (_) => const LoginScreen(),
       },
-      initialRoute: SplashScreen.routeName,
+      initialRoute: HomeScreen.routeName,
     );
   }
 }

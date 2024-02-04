@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo/DialogsUtils.dart';
 import 'package:todo/providers/AuthProvider.dart';
+import 'package:todo/ui/home/MyBottomSheet.dart';
 import 'package:todo/ui/home/tabs/SettingsTab.dart';
 import 'package:todo/ui/home/tabs/TaskListTab.dart';
 import 'package:todo/ui/login/LoginScreen.dart';
@@ -29,7 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          openBottomSheet();
+        },
         child: const Icon(Icons.add),
       ),
       appBar: AppBar(
@@ -72,6 +75,15 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.pushReplacementNamed(context, LoginScreen.routeName);
       },
       negActionTitle: "no",
+    );
+  }
+
+  void openBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return const MyBottomSheet();
+      },
     );
   }
 }
