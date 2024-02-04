@@ -13,9 +13,10 @@ class MyBottomSheet extends StatefulWidget {
 }
 
 class _MyBottomSheetState extends State<MyBottomSheet> {
+  var formKey = GlobalKey<FormState>();
   late TextEditingController titleController;
   late TextEditingController descriptionController;
-  late DateTime? selectedDate;
+  DateTime? selectedDate;
 
   @override
   void initState() {
@@ -32,61 +33,93 @@ class _MyBottomSheetState extends State<MyBottomSheet> {
 
     return Container(
       padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          CustomTextFormField(
-            hint: "Title",
-            controller: titleController,
-            lines: 1,
-            onChanged: (value) {
-              provider.updateTitle(value);
-            },
-          ),
-          CustomTextFormField(
-            hint: "Description",
-            controller: descriptionController,
-            lines: 4,
-            onChanged: (value) {
-              provider.updateDescription(value);
-            },
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          Container(
-            padding: const EdgeInsets.only(bottom: 20),
-            decoration: const BoxDecoration(
-              border: Border(
-                bottom: BorderSide(width: 2, color: Color(0xFFa9a9a99c)),
+      child: Form(
+        key: formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            CustomTextFormField(
+              hint: "Title",
+              controller: titleController,
+              lines: 1,
+              onChanged: (value) {
+                provider.updateTitle(value);
+                formKey.currentState?.validate() == true;
+              },
+              validator: (text) {
+                if (text == null || text.trim().isEmpty) {
+                  return "Please Enter Task Title";
+                }
+                return null;
+              },
+            ),
+            CustomTextFormField(
+              hint: "Description",
+              controller: descriptionController,
+              lines: 4,
+              onChanged: (value) {
+                provider.updateDescription(value);
+                formKey.currentState?.validate() == true;
+              },
+              validator: (text) {
+                if (text == null || text.trim().isEmpty) {
+                  return "Please Enter Task Description";
+                }
+                return null;
+              },
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Container(
+              padding: const EdgeInsets.only(bottom: 20),
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(width: 2, color: Color(0xFFa9a9a99c)),
+                ),
+              ),
+              child: Text(
+                selectedDate == null
+                    ? "Date"
+                    : "${selectedDate?.day}/${selectedDate?.month}/${selectedDate?.year}",
+                style: const TextStyle(color: Color(0xFF707070), fontSize: 18),
               ),
             ),
-            child: Text(
-              "${selectedDate?.day}/${selectedDate?.month}/${selectedDate?.year}",
-              style: const TextStyle(color: Color(0xFF707070), fontSize: 18),
+            const SizedBox(
+              height: 7,
             ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          TextButton(
-            onPressed: () {
-              showCalendar();
-            },
-            child: const Text(
-              "Select Time",
-              style: TextStyle(fontSize: 20),
+            Visibility(
+              visible: showDateError,
+              child: Text(
+                "Please Select Task Date",
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.error, fontSize: 12),
+              ),
             ),
-          ),
-          const Spacer(),
-          ElevatedButton(
-            onPressed: () {},
-            child: const Text(
-              "Add Task",
-              style: TextStyle(fontSize: 20),
+            const SizedBox(
+              height: 10,
             ),
-          ),
-        ],
+            TextButton(
+              onPressed: () {
+                showCalendar();
+              },
+              child: const Text(
+                "Select Time",
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: () {
+                addTask();
+              },
+              child: const Text(
+                "Add Task",
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -95,7 +128,7 @@ class _MyBottomSheetState extends State<MyBottomSheet> {
     var provider = Provider.of<BottomSheetProvider>(context, listen: false);
     DateTime? date = await showDatePicker(
       context: context,
-      initialDate: selectedDate!,
+      initialDate: selectedDate ?? DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
@@ -103,7 +136,30 @@ class _MyBottomSheetState extends State<MyBottomSheet> {
       setState(() {
         provider.updateDate(date);
         selectedDate = provider.selecteddate;
+        if (selectedDate != null) {
+          showDateError = false;
+        }
       });
     }
+  }
+
+  bool showDateError = false;
+
+  void addTask() {
+    if (isValidForm() == false) return;
+  }
+
+  bool isValidForm() {
+    bool isvalid = true;
+    if (formKey.currentState?.validate() == false) {
+      isvalid = false;
+    }
+    if (selectedDate == null) {
+      isvalid = false;
+      setState(() {
+        showDateError = true;
+      });
+    }
+    return isvalid;
   }
 }

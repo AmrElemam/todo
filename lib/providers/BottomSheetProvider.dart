@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 
 class BottomSheetProvider extends ChangeNotifier {
-  String title = "";
-  String description = "";
-  DateTime? selecteddate = DateTime.now();
+  String? title;
+  String? description;
+  DateTime? selecteddate;
 
   void updateTitle(String value) {
     title = value;
